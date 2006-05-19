@@ -3,6 +3,7 @@ with Interfaces.C.Strings; use Interfaces.C.Strings;
 function Read_Line (Prompt : String := "") return String is
 
    pragma Linker_Options ("-lreadline");
+   pragma Linker_Options ("-lncurses");
 
    function Readline (Prompt : chars_ptr) return chars_ptr;
    pragma Import (C, Readline, "readline");
