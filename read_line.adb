@@ -1,4 +1,5 @@
-with Interfaces.C.Strings; use Interfaces.C.Strings;
+with Ada.IO_Exceptions;    use Ada.IO_Exceptions;
+With Interfaces.C.Strings; use Interfaces.C.Strings;
 
 function Read_Line (Prompt : String := "") return String is
 
@@ -21,14 +22,19 @@ begin
       C_Prompt := Null_Ptr;
    end if;
    C_Line := Readline (C_Prompt);
+   if C_Prompt /= Null_Ptr then
+      Free (C_Prompt);
+   end if;
+
+   if C_Line = Null_Ptr then
+      raise End_Error;
+   end if;
+
    declare
       Result : constant String := Value (C_Line);
    begin
       Add_History (C_Line);
       Free (C_Line);
-      if C_Prompt /= Null_Ptr then
-         Free (C_Prompt);
-      end if;
       return Result;
    end;
 end Read_Line;
