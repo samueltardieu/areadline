@@ -1,5 +1,5 @@
 with Ada.IO_Exceptions;    use Ada.IO_Exceptions;
-With Interfaces.C.Strings; use Interfaces.C.Strings;
+with Interfaces.C.Strings; use Interfaces.C.Strings;
 
 function Read_Line (Prompt : String := "") return String is
 
