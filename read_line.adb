@@ -9,7 +9,7 @@ function Read_Line (Prompt : String := "") return String is
    function Readline (Prompt : chars_ptr) return chars_ptr;
    pragma Import (C, Readline, "readline");
 
-   procedure Add_History (Line : in chars_ptr);
+   procedure Add_History (Line : chars_ptr);
    pragma Import (C, Add_History, "add_history");
 
    C_Prompt : chars_ptr;
