@@ -1,0 +1,6 @@
+b~*.ad?
+*.ali
+*.o
+test_read_line
+*~
+\#*\#
