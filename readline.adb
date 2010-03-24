@@ -8,6 +8,7 @@ with Ada.Unchecked_Deallocation;
 package body Readline is
 
    pragma Linker_Options ("-lreadline");
+   pragma Linker_Options ("-lncurses");
 
    type rl_compentry_func_t is
       access function (Text : chars_ptr; State : int) return chars_ptr;
