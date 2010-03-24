@@ -1,8 +1,8 @@
+with Ada.Characters.Handling;
+with Ada.Text_IO;                use Ada.Text_IO;
+with Ada.Unchecked_Deallocation;
 with Interfaces.C;               use Interfaces.C;
 with Interfaces.C.Strings;       use Interfaces.C.Strings;
-with Ada.Text_IO;                use Ada.Text_IO;
-with Ada.Characters.Handling;
-with Ada.Unchecked_Deallocation;
 
 package body Readline is
 
@@ -26,6 +26,36 @@ package body Readline is
 
    function Completer (Text : chars_ptr; State : int)
          return chars_ptr;
+
+   --------------
+   -- Add_Word --
+   --------------
+
+   procedure Add_Word (Word : String) is
+   begin
+      List_Size := List_Size + 1;
+      if List_Size > List'Length then
+         raise Too_Many_Words;
+      end if;
+      List (List_Size) := new String'(Word);
+   end Add_Word;
+
+   ---------------------
+   -- Clear_All_Words --
+   ---------------------
+
+   procedure Clear_All_Words is
+      procedure Delete is
+         new Ada.Unchecked_Deallocation (String, String_Access);
+   begin
+      for I in 1 .. List_Size loop
+         if List (I) /= null then
+            Delete (List (I));
+         end if;
+         List (I) := null;
+      end loop;
+      List_Size := 0;
+   end Clear_All_Words;
 
    ---------------
    -- Completer --
@@ -89,75 +119,6 @@ package body Readline is
       return Null_Ptr;
    end Completer;
 
-   --------------
-   -- Add_Word --
-   --------------
-
-   procedure Add_Word (Word : String) is
-   begin
-      List_Size := List_Size + 1;
-      if List_Size > List'Length then
-         raise Too_Many_Words;
-      end if;
-      List (List_Size) := new String'(Word);
-   end Add_Word;
-
-   ---------------------
-   -- Clear_All_Words --
-   ---------------------
-
-   procedure Clear_All_Words is
-      procedure Delete is
-         new Ada.Unchecked_Deallocation (String, String_Access);
-   begin
-      for I in 1 .. List_Size loop
-         if List (I) /= null then
-            Delete (List (I));
-         end if;
-         List (I) := null;
-      end loop;
-      List_Size := 0;
-   end Clear_All_Words;
-
-   --------------------
-   -- Variable_Value --
-   --------------------
-
-   function Variable_Value (Name : String) return String is
-      function rl_variable_value (variable : chars_ptr) return chars_ptr;
-      pragma Import (C, rl_variable_value, "rl_variable_value");
-
-      C_Name : chars_ptr;
-      C_Value : chars_ptr;
-   begin
-      C_Name := New_String (Name);
-      C_Value := rl_variable_value (C_Name);
-      Free (C_Name);
-      return Value (C_Value);
-   end Variable_Value;
-
-   -------------------
-   -- Variable_Bind --
-   -------------------
-
-   procedure Variable_Bind (Name : String; Value : String) is
-
-      function rl_variable_bind (variable : chars_ptr; value : chars_ptr)
-         return int;
-      pragma Import (C, rl_variable_bind, "rl_variable_bind");
-
-      C_Name : chars_ptr;
-      C_Value : chars_ptr;
-      Result : int;
-      pragma Warnings (Off, Result);
-   begin
-      C_Name := New_String (Name);
-      C_Value := New_String (Value);
-      Result := rl_variable_bind (C_Name, C_Value);
-      Free (C_Name);
-      Free (C_Value);
-   end Variable_Bind;
-
    ---------------
    -- Read_Line --
    ---------------
@@ -196,6 +157,45 @@ package body Readline is
          return Result;
       end;
    end Read_Line;
+
+   -------------------
+   -- Variable_Bind --
+   -------------------
+
+   procedure Variable_Bind (Name : String; Value : String) is
+
+      function rl_variable_bind (variable : chars_ptr; value : chars_ptr)
+         return int;
+      pragma Import (C, rl_variable_bind, "rl_variable_bind");
+
+      C_Name : chars_ptr;
+      C_Value : chars_ptr;
+      Result : int;
+      pragma Warnings (Off, Result);
+   begin
+      C_Name := New_String (Name);
+      C_Value := New_String (Value);
+      Result := rl_variable_bind (C_Name, C_Value);
+      Free (C_Name);
+      Free (C_Value);
+   end Variable_Bind;
+
+   --------------------
+   -- Variable_Value --
+   --------------------
+
+   function Variable_Value (Name : String) return String is
+      function rl_variable_value (variable : chars_ptr) return chars_ptr;
+      pragma Import (C, rl_variable_value, "rl_variable_value");
+
+      C_Name : chars_ptr;
+      C_Value : chars_ptr;
+   begin
+      C_Name := New_String (Name);
+      C_Value := rl_variable_value (C_Name);
+      Free (C_Name);
+      return Value (C_Value);
+   end Variable_Value;
 
 begin
    rl_completion_entry_function := Completer'Access;
