@@ -1,15 +1,15 @@
 with Ada.Text_IO; use Ada.Text_IO;
-with Read_Line;
+with Readline;
 
 procedure Test_Read_Line is
 begin
-   Read_Line.Add_Word ("One");
-   Read_Line.Add_Word ("Two");
-   Read_Line.Add_Word ("Three");
-   Read_Line.Add_Word ("Four");
+   Readline.Add_Word ("One");
+   Readline.Add_Word ("Two");
+   Readline.Add_Word ("Three");
+   Readline.Add_Word ("Four");
    loop
       declare
-         Line : constant String := Read_Line.Read_Line ("Type something> ");
+         Line : constant String := Readline.Read_Line ("Type something> ");
       begin
          Put_Line ("You typed: " & Line);
       end;

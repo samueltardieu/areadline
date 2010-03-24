@@ -1,4 +1,4 @@
-package Read_Line is
+package Readline is
 
    procedure Add_Word (Word : String);
 
@@ -11,4 +11,4 @@ package Read_Line is
    function Read_Line (Prompt : String := "") return String;
    --  May raise Ada.IO_Exceptions.End_Error if end-of-file is encountered
 
-end Read_Line;
+end Readline;
