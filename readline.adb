@@ -2,7 +2,6 @@ with Ada.Characters.Handling;
 with Ada.Text_IO;                use Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 with Interfaces.C.Strings;       use Interfaces.C, Interfaces.C.Strings;
-with System;
 
 package body Readline is
 
@@ -125,7 +124,7 @@ package body Readline is
 
    function Read_Line (Prompt : String := "") return String is
 
-      function Readline (Prompt : System.Address) return chars_ptr;
+      function Readline (Prompt : char_array) return chars_ptr;
       pragma Import (C, Readline, "readline");
 
       procedure Add_History (Line : chars_ptr);
@@ -134,15 +133,7 @@ package body Readline is
       C_Line   : chars_ptr;
 
    begin
-      if Prompt = "" then
-         C_Line := Readline (System.Null_Address);
-      else
-         declare
-            C_Prompt : constant char_array := To_C (Prompt);
-         begin
-            C_Line := Readline (C_Prompt'Address);
-         end;
-      end if;
+      C_Line := Readline (To_C (Prompt));
 
       if C_Line = Null_Ptr then
          raise End_Error;
@@ -163,14 +154,12 @@ package body Readline is
 
    procedure Variable_Bind (Name : String; Value : String) is
 
-      procedure rl_variable_bind (variable : System.Address;
-                                  value    : System.Address);
+      procedure rl_variable_bind (variable : char_array;
+                                  value    : char_array);
       pragma Import (C, rl_variable_bind, "rl_variable_bind");
 
-      C_Name  : constant char_array := To_C (Name);
-      C_Value : constant char_array := To_C (Value);
    begin
-      rl_variable_bind (C_Name'Address, C_Value'Address);
+      rl_variable_bind (To_C (Name), To_C (Value));
    end Variable_Bind;
 
    --------------------
@@ -178,12 +167,12 @@ package body Readline is
    --------------------
 
    function Variable_Value (Name : String) return String is
-      function rl_variable_value (variable : System.Address) return chars_ptr;
+
+      function rl_variable_value (variable : char_array) return chars_ptr;
       pragma Import (C, rl_variable_value, "rl_variable_value");
 
-      C_Name : constant char_array := To_C (Name);
    begin
-      return Value (rl_variable_value (C_Name'Address));
+      return Value (rl_variable_value (To_C (Name)));
    end Variable_Value;
 
 begin
