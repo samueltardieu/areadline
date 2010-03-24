@@ -1,4 +1,5 @@
 with Ada.Characters.Handling;
+with Ada.Containers.Vectors;
 with Ada.Text_IO;                use Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 with Interfaces.C.Strings;       use Interfaces.C, Interfaces.C.Strings;
@@ -16,12 +17,14 @@ package body Readline is
       "rl_completion_entry_function");
 
    type String_Access is access String;
-   List_Index     : Integer := 0;
-   List_Size      : Integer := 0;
-   List           : array (1 .. 1024) of String_Access;
-   Case_Sensitive : Boolean := True;
+   package String_Arrays is
+      new Ada.Containers.Vectors (Positive, String_Access);
+   use String_Arrays;
 
-   Too_Many_Words : exception;
+   List        : Vector;
+   List_Cursor : Cursor;
+
+   Case_Sensitive : Boolean := True;
 
    function Completer (Text : chars_ptr; State : int)
          return chars_ptr;
@@ -32,11 +35,7 @@ package body Readline is
 
    procedure Add_Word (Word : String) is
    begin
-      List_Size := List_Size + 1;
-      if List_Size > List'Length then
-         raise Too_Many_Words;
-      end if;
-      List (List_Size) := new String'(Word);
+      Append (List, new String'(Word));
    end Add_Word;
 
    ---------------------
@@ -47,13 +46,14 @@ package body Readline is
       procedure Delete is
          new Ada.Unchecked_Deallocation (String, String_Access);
    begin
-      for I in 1 .. List_Size loop
-         if List (I) /= null then
-            Delete (List (I));
-         end if;
-         List (I) := null;
+      for I in First_Index (List) .. Last_Index (List) loop
+         declare
+            Current : String_Access := Element (List, I);
+         begin
+            Delete (Current);
+         end;
       end loop;
-      List_Size := 0;
+      Clear (List);
    end Clear_All_Words;
 
    ---------------
@@ -106,15 +106,21 @@ package body Readline is
 
    begin
       if State = 0 then
-         List_Index := 0;
+         List_Cursor := First (List);
          Case_Sensitive := Variable_Value ("completion-ignore-case") = "off";
       end if;
-      while List_Index < List_Size loop
-         List_Index := List_Index + 1;
-         if Starts_With (List (List_Index).all, T, Case_Sensitive) then
-            return New_String (List (List_Index).all);
-         end if;
+
+      while List_Cursor /= No_Element loop
+         declare
+            Current : String renames Element (List_Cursor).all;
+         begin
+            Next (List_Cursor);
+            if Starts_With (Current, T, Case_Sensitive) then
+               return New_String (Current);
+            end if;
+         end;
       end loop;
+
       return Null_Ptr;
    end Completer;
 
