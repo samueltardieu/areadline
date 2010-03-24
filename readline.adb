@@ -1,7 +1,6 @@
---  with Ada.IO_Exceptions;    use Ada.IO_Exceptions;
-with Interfaces.C;         use Interfaces.C;
-with Interfaces.C.Strings; use Interfaces.C.Strings;
-with Ada.Text_IO;          use Ada.Text_IO;
+with Interfaces.C;               use Interfaces.C;
+with Interfaces.C.Strings;       use Interfaces.C.Strings;
+with Ada.Text_IO;                use Ada.Text_IO;
 with Ada.Characters.Handling;
 with Ada.Unchecked_Deallocation;
 

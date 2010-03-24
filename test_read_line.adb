@@ -1,4 +1,3 @@
-with Ada.IO_Exceptions;
 with Ada.Text_IO;
 with Readline;
 
@@ -16,6 +15,6 @@ begin
       end;
    end loop;
 exception
-   when Ada.IO_Exceptions.End_Error =>
+   when Ada.Text_IO.End_Error =>
       null;
 end Test_Read_Line;
