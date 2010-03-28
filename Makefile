@@ -1,2 +1,2 @@
 check-syntax::
-	gnatmake -gnatc -c $(CHK_SOURCES)
+	gcc -S -o /dev/null -gnatwa -gnaty $(CHK_SOURCES)
