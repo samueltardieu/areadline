@@ -1,14 +1,6 @@
 package Readline is
 
-   pragma Elaborate_Body;
-
-   procedure Add_Word (Word : String);
-
-   procedure Clear_All_Words;
-
-   procedure Variable_Bind (Name : String; Value : String);
-
-   function Variable_Value (Name : String) return String;
+   pragma Preelaborate;
 
    function Read_Line (Prompt : String := "") return String;
    --  May raise Ada.IO_Exceptions.End_Error if end-of-file is encountered
