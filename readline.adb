@@ -11,6 +11,7 @@ package body Readline is
 
    type rl_compentry_func_t is
       access function (Text : chars_ptr; State : int) return chars_ptr;
+   pragma Convention (C, rl_compentry_func_t);
 
    rl_completion_entry_function : rl_compentry_func_t;
    pragma Import (C, rl_completion_entry_function,
@@ -28,6 +29,7 @@ package body Readline is
 
    function Completer (Text : chars_ptr; State : int)
          return chars_ptr;
+   pragma Convention (C, Completer);
 
    --------------
    -- Add_Word --
